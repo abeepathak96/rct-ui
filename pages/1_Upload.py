@@ -71,6 +71,32 @@ st.markdown("""
 
 
     /* --- Main Content Styling --- */
+    /* Navbar Styling */
+    .navbar-container {
+        display: flex;
+        background-color: #FFFFFF;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid #E2E8F0;
+    }
+    .nav-link {
+        padding: 0.5rem 1.5rem;
+        color: #475569;
+        text-decoration: none;
+        font-weight: 500;
+        border-radius: 0.375rem;
+        transition: background-color 0.2s;
+    }
+    .nav-link:hover {
+        background-color: #F1F5F9;
+    }
+    .nav-link.active {
+        background-color: #E2E8F0;
+        color: #0F172A;
+        font-weight: 600;
+    }
+
     /* File Uploader custom styling */
     [data-testid="stFileUploader"] {
         border: 2px dashed #CBD5E1;
@@ -176,6 +202,17 @@ with col3:
     st.button("👤", help="Profile", use_container_width=True)
 
 st.divider()
+
+# --- NAVBAR ---
+st.markdown("""
+<div class="navbar-container">
+    <a href="#" class="nav-link active">Upload</a>
+    <a href="#" class="nav-link">Compliance Mapping</a>
+    <a href="#" class="nav-link">System Design</a>
+    <a href="#" class="nav-link">Reports</a>
+</div>
+""", unsafe_allow_html=True)
+
 
 # File Uploader
 st.file_uploader(
