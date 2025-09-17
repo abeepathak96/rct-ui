@@ -29,19 +29,19 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Image path
-image_path = os.path.join(os.getcwd(), "assets", "welcome_page.png")
-
 # Fullscreen splash with clickable image
-st.markdown(
-    f"""
-    <div class="full-container">
-        <a href="?page=upload">
-            <img src="file://{image_path}" alt="Welcome Page">
-        </a>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+# st.markdown(
+#     f"""
+#     <div class="full-container">
+#         <a href="?page=upload">
+#             <img src="assets/welcome_page.png" alt="Welcome Page">
+#         </a>
+#     </div>
+#     """,
+#     unsafe_allow_html=True
+# )
+
+st.image("assets/welcome_page.png", use_container_width=True)
 
 # Handle redirect when clicked
 query_params = st.query_params
