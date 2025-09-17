@@ -1,8 +1,9 @@
 import streamlit as st
-from datetime import datetime, timedelta
+import requests
+import os
+from datetime import datetime
 
 # --- PAGE CONFIGURATION ---
-# Set the page configuration for a wide layout.
 st.set_page_config(
     page_title="Regulatory Compliance Translator",
     page_icon="🤖",
@@ -10,34 +11,50 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# --- Page Header ---#
+# --- BACKEND CONFIG ---
+API_BASE_URL = os.getenv("API_BASE_URL", "https://rct-backend-908a.onrender.com")  # change to Render URL when deployed
+
+# --- Page Header ---
 st.title("Upload Compliance Document")
 st.caption("Upload regulatory documents to extract compliance requirements")
 
-#--- Upload Box ---#
+# --- Upload Box ---
 uploaded_file = st.file_uploader(
     "Drag and drop your files here (PDF,DOCX,CSV,TXT)",
-    type=["pdf","docx","csv","txt"]
+    type=["pdf", "docx", "csv", "txt"]
 )
 
-col1,col2 = st.columns(2)
-with col1:
-    st.button("📂 Browse Files")
-with col2:
-    st.button("📝 Paste Text")
+if uploaded_file:
+    if st.button("📤 Upload to Server"):
+        try:
+            with st.spinner("Uploading file..."):
+                response = requests.post(
+                    f"{API_BASE_URL}/rct/documents/upload",
+                    files={"file": (uploaded_file.name, uploaded_file, uploaded_file.type)}
+                )
+                if response.status_code == 200:
+                    st.success(f"✅ File uploaded successfully!")
+                    st.json(response.json())  # Show API response
+                else:
+                    st.error(f"❌ Upload failed: {response.text}")
+        except Exception as e:
+            st.error(f"⚠️ Error uploading file: {e}")
 
 st.write("---")
 
-# --- Recent Uploads (mock data for now) ---
+# --- Recent Uploads ---
 st.subheader("Recent Uploads")
-recent_uploads = [
-    {"name": "GDPR_Compliance_2025.pdf", "date": "Aug 25, 2025"},
-    {"name": "ISO27001_Requirements.docx", "date": "Aug 22, 2025"},
-    {"name": "Compliance_Controls.csv", "date": "Aug 18, 2025"},
-]
 
-for doc in recent_uploads:
-    st.write(f"📄 {doc['name']} — Uploaded on {doc['date']}")
+try:
+    response = requests.get(f"{API_BASE_URL}/rct/documents")
+    if response.status_code == 200:
+        documents = response.json().get("files", [])
+        for doc in documents:
+            st.write(f"📄 {doc['name']} — Uploaded on {doc['upload_ts']}")
+    else:
+        st.warning("Could not fetch recent uploads from API.")
+except Exception as e:
+    st.warning(f"⚠️ API not reachable: {e}")
 
 st.write("---")
 
