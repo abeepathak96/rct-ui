@@ -1,6 +1,6 @@
 import requests
 
-BASE_URL = "https://rct-backend-908a.onrender.com"  # replace with Render/Prod URL
+BASE_URL = "https://rct-backend-908a.onrender.com/rct"  # replace with Render/Prod URL
 
 # ---- Documents ----
 def upload_document(file):
