@@ -1,68 +1,27 @@
 import streamlit as st
-import requests
-import os
-from datetime import datetime
+import pandas as pd
+from services import api_client
 
-# --- PAGE CONFIGURATION ---
-st.set_page_config(
-    page_title="Regulatory Compliance Translator",
-    page_icon="🤖",
-    layout="wide",
-    initial_sidebar_state="expanded",
-)
+st.set_page_config(page_title="RCT - Upload Documents", layout="wide")
+st.title("📂 Upload Compliance Documents")
 
-# --- BACKEND CONFIG ---
-API_BASE_URL = os.getenv("API_BASE_URL", "https://rct-backend-908a.onrender.com")  # change to Render URL when deployed
+uploaded_file = st.file_uploader("Choose a document", type=["pdf", "docx", "csv", "txt"])
 
-# --- Page Header ---
-st.title("Upload Compliance Document")
-st.caption("Upload regulatory documents to extract compliance requirements")
+if uploaded_file is not None:
+    if st.button("Upload Document"):
+        with st.spinner("Uploading..."):
+            response = api_client.upload_document(uploaded_file)
+        if response.get("success"):
+            st.success(f"✅ {response['message']}")
+        else:
+            st.error(f"❌ Upload failed: {response.get('error')}")
 
-# --- Upload Box ---
-uploaded_file = st.file_uploader(
-    "Drag and drop your files here (PDF,DOCX,CSV,TXT)",
-    type=["pdf", "docx", "csv", "txt"]
-)
+st.divider()
 
-if uploaded_file:
-    if st.button("📤 Upload to Server"):
-        try:
-            with st.spinner("Uploading file..."):
-                response = requests.post(
-                    f"{API_BASE_URL}/rct/documents/upload",
-                    files={"file": (uploaded_file.name, uploaded_file, uploaded_file.type)}
-                )
-                if response.status_code == 200:
-                    st.success(f"✅ File uploaded successfully!")
-                    st.json(response.json())  # Show API response
-                else:
-                    st.error(f"❌ Upload failed: {response.text}")
-        except Exception as e:
-            st.error(f"⚠️ Error uploading file: {e}")
-
-st.write("---")
-
-# --- Recent Uploads ---
-st.subheader("Recent Uploads")
-
-try:
-    response = requests.get(f"{API_BASE_URL}/rct/documents")
-    if response.status_code == 200:
-        documents = response.json().get("files", [])
-        for doc in documents:
-            st.write(f"📄 {doc['name']} — Uploaded on {doc['upload_ts']}")
-    else:
-        st.warning("Could not fetch recent uploads from API.")
-except Exception as e:
-    st.warning(f"⚠️ API not reachable: {e}")
-
-st.write("---")
-
-# --- Start Analysis Button ---
-st.button("▶️ Start Analysis", use_container_width=True)
-
-# --- Footer ---
-st.caption(
-    "© 2025 Regulatory Compliance Translator (RCT) | Developed for the AI Compliance Hackathon\n\n"
-    "Disclaimer: This tool provides suggestions only. Always consult with legal experts."
-)
+st.subheader("Uploaded Documents")
+docs = api_client.get_documents()
+if docs:
+    df = pd.DataFrame(docs)
+    st.dataframe(df, use_container_width=True)
+else:
+    st.info("No documents uploaded yet.")
