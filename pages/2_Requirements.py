@@ -71,10 +71,38 @@ requirements = api_client.get_requirements(selected_doc)
 if requirements:
     df = pd.DataFrame(requirements)
 
-    # Optional formatting
+    # Format 'created_at' column (if present)
     if 'created_at' in df.columns:
         df['created_at'] = pd.to_datetime(df['created_at']).dt.strftime('%Y-%m-%d %H:%M')
 
-    st.dataframe(df, use_container_width=True)
+    # Styled DataFrame
+    styled_df = df.style.set_properties(**{
+        'text-align': 'left',
+        'border-color': '#ddd',
+        'border-width': '1px',
+        'border-style': 'solid'
+    }).set_table_styles([
+        {
+            'selector': 'th',
+            'props': [('text-align', 'left'), ('background-color', '#f1f3f6')]
+        },
+        {
+            'selector': 'td',
+            'props': [('padding', '6px 10px')]
+        }
+    ])
+
+    st.dataframe(styled_df, use_container_width=True)
+
+    # ---- Download CSV Button ----
+    csv = df.to_csv(index=False).encode('utf-8')
+    st.download_button(
+        label="📥 Download as CSV",
+        data=csv,
+        file_name="extracted_requirements.csv",
+        mime="text/csv",
+        use_container_width=True
+    )
+
 else:
     st.info("No requirements extracted yet. Run the extraction above to generate them.")
