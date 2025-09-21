@@ -14,7 +14,7 @@ if not docs:
 selected_doc = st.selectbox(
     "Select a document:",
     options=[doc["doc_id"] for doc in docs],
-    format_func=lambda x: f"{next(doc['name'] for doc in docs if doc['doc_id']==x)}"
+    format_func=lambda x: f"{next(doc['doc_name'] for doc in docs if doc['doc_id']==x)}"
 )
 
 if st.button("Run NER Extraction"):
