@@ -16,12 +16,15 @@ if not docs:
 
 # ---- Document Selection ----
 st.markdown("### 📄 Select Document")
+
 selected_doc = st.selectbox(
     label="Choose a document to extract requirements from:",
     options=[doc["doc_id"] for doc in docs],
     format_func=lambda x: f"{next(doc['doc_name'] for doc in docs if doc['doc_id'] == x)}",
     help="Only documents that have been uploaded are listed here."
 )
+
+doc_name = next(doc['doc_name'] for doc in docs if doc['doc_id'] == selected_doc)
 
 st.divider()
 
@@ -32,7 +35,7 @@ if st.button("▶️ Run NER Extraction"):
     resp = api_client.extract_requirements(selected_doc)
 
     if resp.get("success"):
-        st.success("✅ Extraction started. Checking progress...")
+        st.info("✅ Extraction started. Checking progress...")
 
         progress_bar = st.progress(0)
         status_text = st.empty()
@@ -41,8 +44,9 @@ if st.button("▶️ Run NER Extraction"):
             progress = api_client.get_extraction_progress(selected_doc)
 
             if progress["status"] == "completed":
-                progress_bar.progress(100)
-                status_text.success("✅ Extraction completed!")
+                progress_bar.empty()
+                status_text.empty()
+                st.success("✅ Extraction completed!")
                 break
 
             elif progress["status"] == "in_progress":
@@ -54,6 +58,7 @@ if st.button("▶️ Run NER Extraction"):
                 status_text.info("⏳ Waiting for extraction to start...")
 
             else:
+                progress_bar.empty()
                 status_text.error("⚠️ Error during extraction. Please try again.")
                 break
 
@@ -64,7 +69,7 @@ if st.button("▶️ Run NER Extraction"):
 st.divider()
 
 # ---- Display Requirements ----
-st.markdown("### 📋 Extracted Requirements")
+st.markdown(f"### 📋 Extracted Requirements for **{doc_name}**")
 
 requirements = api_client.get_requirements(selected_doc)
 
@@ -81,16 +86,7 @@ if requirements:
         'border-color': '#ddd',
         'border-width': '1px',
         'border-style': 'solid'
-    }).set_table_styles([
-        {
-            'selector': 'th',
-            'props': [('text-align', 'left'), ('background-color', '#f1f3f6')]
-        },
-        {
-            'selector': 'td',
-            'props': [('padding', '6px 10px')]
-        }
-    ])
+    })
 
     st.dataframe(styled_df, use_container_width=True)
 
@@ -105,4 +101,8 @@ if requirements:
     )
 
 else:
-    st.info("No requirements extracted yet. Run the extraction above to generate them.")
+    # Show warning and empty DataFrame with expected columns
+    st.warning(f"⚠️ No requirements were found in the document **{doc_name}**.")
+
+    empty_df = pd.DataFrame(columns=["requirement_id", "section_ref", "text", "category", "priority", "created_at"])
+    st.dataframe(empty_df, use_container_width=True)
