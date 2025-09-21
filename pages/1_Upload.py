@@ -83,19 +83,30 @@ st.subheader("Uploaded Documents")
 docs = api_client.get_documents()
 
 if docs:
+    # Sort by upload date (latest first)
     docs_sorted = sorted(docs, key=lambda x: x['upload_date'], reverse=True)
 
     for doc in docs_sorted:
+        # Optional: format date nicely
+        upload_date = doc['upload_date'].split('T')[0]  # keep just the date part
+
+        # Render each document as a card
         st.markdown(f"""
-            <div style="border: 2px solid #ddd; border-radius: 10px; padding: 15px; margin-bottom: 15px; background-color: #f9f9f9;">
-                <h5>{doc['doc_name']}</h5>
+            <div style="
+                border: 2px solid #ddd;
+                border-radius: 10px;
+                padding: 15px;
+                margin-bottom: 15px;
+                background-color: #f9f9f9;
+            ">
+                <h5 style="margin-bottom: 10px;">📄 {doc['doc_name']}</h5>
                 <p><strong>Type:</strong> {doc['doc_type']}</p>
-                <p><strong>Uploaded on:</strong> {doc['upload_date'].split('T')[0]}</p>
-                <a href="{doc['file_path']}" target="_blank">
-                    <button style="background-color: #3498db; color: white; border: none; padding: 8px 16px; border-radius: 5px;">Download</button>
-                </a>
+                <p><strong>Status:</strong> {doc['status'].capitalize()}</p>
+                <p><strong>Uploaded on:</strong> {upload_date}</p>
             </div>
         """, unsafe_allow_html=True)
+
 else:
     st.info("No documents uploaded yet.")
+
 
