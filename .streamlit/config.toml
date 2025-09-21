@@ -1,0 +1,7 @@
+[theme]
+base = "light"
+primaryColor = "#2E86C1"         # Accent buttons, links
+backgroundColor = "#F5F7FA"      # Main background
+secondaryBackgroundColor = "#EAF2F8"  # Sidebar and containers
+textColor = "#1B2631"
+font = "sans serif"
