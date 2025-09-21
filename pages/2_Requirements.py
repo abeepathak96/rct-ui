@@ -20,15 +20,20 @@ selected_doc = st.selectbox(
 if st.button("Run NER Extraction"):
     with st.spinner("Extracting requirements..."):
         resp = api_client.extract_requirements(selected_doc)
+
     if resp.get("success"):
         st.success("✅ Extraction complete")
     else:
         st.error(f"❌ {resp.get('error')}")
 
 st.divider()
-requirements = api_client.get_requirements(selected_doc)
+
+# --- Fix: Get the list from the 'requirements' key ---
+response = api_client.get_requirements(selected_doc)
+requirements = response.get("requirements", [])
+
 if requirements:
-    st.subheader("Extracted Requirements")
+    st.subheader("📋 Extracted Requirements")
     st.dataframe(pd.DataFrame(requirements), use_container_width=True)
 else:
     st.info("No requirements extracted yet.")
