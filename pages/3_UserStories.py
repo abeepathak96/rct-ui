@@ -12,7 +12,7 @@ if not docs:
 
 selected_doc = st.selectbox(
     "Select a document:",
-    options=[doc["id"] for doc in docs],
+    options=[doc["doc_id"] for doc in docs],
     format_func=lambda x: f"{next(doc['doc_name'] for doc in docs if doc['doc_id']==x)}"
 )
 
