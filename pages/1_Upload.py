@@ -61,7 +61,7 @@ st.title("📂 Upload Compliance Documents")
 uploaded_file = st.file_uploader("Choose a document", type=["pdf", "docx", "csv", "txt"])
 
 if uploaded_file is not None:
-    if st.button("Upload Document",icon="upload"):
+    if st.button("Upload Document"):
         with st.spinner("Uploading..."):
             progress_bar = st.progress(0)
             for i in range(1, 101):
