@@ -28,12 +28,16 @@ if st.button("Run NER Extraction"):
 
 st.divider()
 
-# --- Fix: Get the list from the 'requirements' key ---
-response = api_client.get_requirements(selected_doc)
-requirements = response.get("requirements", [])
+requirements = api_client.get_requirements(selected_doc)
+
+# Defensive check in case the backend ever changes
+if not isinstance(requirements, list):
+    st.error("❌ Invalid response from API. Expected a list of requirements.")
+    st.stop()
 
 if requirements:
     st.subheader("📋 Extracted Requirements")
-    st.dataframe(pd.DataFrame(requirements), use_container_width=True)
+    df = pd.DataFrame(requirements)
+    st.dataframe(df, use_container_width=True)
 else:
     st.info("No requirements extracted yet.")
