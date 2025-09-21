@@ -29,6 +29,7 @@ if st.button("Run NER Extraction"):
 st.divider()
 
 requirements = api_client.get_requirements(selected_doc)
+st.write("📦 API returned requirements:", requirements)  # DEBUG
 
 # Defensive check in case the backend ever changes
 if not isinstance(requirements, list):
