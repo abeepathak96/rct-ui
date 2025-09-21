@@ -89,3 +89,13 @@ def get_audit_logs():
         return []
     except:
         return []
+
+def get_extraction_progress(doc_id: int):
+    url = f"{BASE_URL}/requirements/progress/{doc_id}"
+    try:
+        r = requests.get(url)
+        if r.status_code == 200:
+            return r.json()
+        return {"status": "error"}
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
