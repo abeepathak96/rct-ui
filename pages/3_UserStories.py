@@ -35,18 +35,18 @@ if stories:
     st.subheader("Generated User Stories & Acceptance Criteria")
 
     for s in stories:
-        with st.container():
-            st.markdown(f"**📌 User Story {s['story_id']}**")
-            st.markdown(f"**Requirement ID:** {s['requirement_id']}")
-            st.markdown(f"**User Story:** {s['user_story_text']}")
+        st.markdown(f"**📌 User Story {s['story_id']}**")
+        st.markdown(f"**Requirement ID:** {s['requirement_id']}")
+        st.markdown(f"**User Story:** {s['user_story_text']}")
 
-            st.markdown("**Acceptance Criteria:**")
-            if isinstance(s["acceptance_criteria"], list):
-                for ac in s["acceptance_criteria"]:
-                    st.markdown(f"- {ac}")
-            else:
-                st.markdown(f"- {s['acceptance_criteria']}")
+        st.markdown("**Acceptance Criteria:**")
+        if s["acceptance_criteria"]:
+            for ac in s["acceptance_criteria"].split("\n"):
+                st.markdown(f"- {ac}")
+        else:
+            st.markdown("- N/A")
 
-            st.markdown("---")  # separator
+        st.markdown("---")
+
 else:
     st.info("No user stories available yet.")
