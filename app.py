@@ -1,49 +1,79 @@
 # app.py
 import streamlit as st
-import os
+import base64
+from pathlib import Path
 
-# Setup
+# --- Helper Function ---
+def get_image_as_base64(path: str) -> str:
+    """
+    Reads an image file from the given path and returns it
+    as a Base64 encoded string.
+    """
+    try:
+        with open(path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+    except FileNotFoundError:
+        st.error(f"Image file not found at {path}. Please check the file path.")
+        return ""
+
+# --- Configuration ---
+LOGO_PATH = "assets/logo.jpg"
+WELCOME_IMAGE_PATH = "assets/welcome_page.png"
+
+# --- Page Setup ---
 st.set_page_config(
     page_title="Regulatory Compliance Translator (RCT)",
-    page_icon="assets/logo.jpg",
+    page_icon=LOGO_PATH if Path(LOGO_PATH).exists() else "🤖",
     layout="wide",
-    initial_sidebar_state="collapsed"   # 👈 collapse sidebar by default
+    initial_sidebar_state="collapsed"  # Collapse sidebar by default
 )
 
-# CSS for fullscreen image
-st.markdown("""
-    <style>
-    .full-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;  /* full viewport height */
-    }
-    .full-container img {
-        max-width: 100%;
-        max-height: 100%;
-        object-fit: contain;
-        cursor: pointer;
-    }
-    </style>
-""", unsafe_allow_html=True)
+# --- Clickable Welcome Page ---
 
-# Image path
-# Fullscreen splash with clickable image
-# st.markdown(
-#     f"""
-#     <div class="full-container">
-#         <a href="?page=upload">
-#             <img src="assets/welcome_page.png" alt="Welcome Page">
-#         </a>
-#     </div>
-#     """,
-#     unsafe_allow_html=True
-# )
+# Encode the local image to a Base64 string for robust embedding
+welcome_image_base64 = get_image_as_base64(WELCOME_IMAGE_PATH)
 
-st.image("assets/welcome_page.png", use_container_width=True)
+if welcome_image_base64:
+    # This HTML/CSS block creates a fullscreen, clickable image.
+    # Clicking the image adds '?page=upload' to the URL.
+    st.markdown(
+        f"""
+        <style>
+            /* Remove Streamlit's default padding */
+            .main .block-container {{
+                padding: 0;
+                margin: 0;
+            }}
+            /* Style for the fullscreen container */
+            .full-container {{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                width: 100vw;
+                position: fixed;
+                top: 0;
+                left: 0;
+                background-color: white; /* Optional: background for the splash */
+            }}
+            .full-container img {{
+                max-width: 95%;
+                max-height: 95%;
+                object-fit: contain;
+                cursor: pointer;
+            }}
+        </style>
+        <a href="?page=upload" target="_self">
+            <div class="full-container">
+                <img src="data:image/png;base64,{welcome_image_base64}" alt="Welcome Page">
+            </div>
+        </a>
+        """,
+        unsafe_allow_html=True
+    )
 
-# Handle redirect when clicked
-query_params = st.query_params
-if query_params.get("page") == ["upload"]:
+# --- Navigation Logic ---
+# This checks the URL's query parameters. If 'page=upload' is present,
+# it switches to the Upload page.
+if st.query_params.get("page") == ["upload"]:
     st.switch_page("pages/1_Upload.py")
